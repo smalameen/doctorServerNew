@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fs = require('fs-extra');
+
 const fileUpload = require('express-fileupload');
 
 const MongoClient = require('mongodb').MongoClient;
@@ -28,6 +30,11 @@ const client = new MongoClient(uri, { useNewUrlParser: true,useUnifiedTopology: 
 client.connect(err => {
   const dataCollection = client.db("doctorAppointment").collection("receiveAppo");
 
+  const doctorCollection = client.db("doctorAppointment").collection("doctors");
+
+  
+ 
+
   app.post ('/userAppointment' ,  (req, res) => {
     const userAppo = req.body;
     console.log(userAppo);
@@ -51,15 +58,51 @@ app.post ('/addDoctor' ,  (req, res) => {
     const files = req.files.file;
     const name = req.body.name;
     const email = req.body.email;
-    console.log(files, name, email);
-    files.mv(`${__dirname}/doctors/${files.name}`, error => {
+    const phoneNumber = req.body.phoneNumber;
+    console.log(files, name, email, phoneNumber);
+
+    const filePath = `${__dirname}/doctors/${files.name}`
+
+    files.mv(filePath, error => {
     if(error){
     console.log(error);
     return res.status(5001).send({meg:"Failed to load image"})
 }
+// const newImg = fs.readFileSync(filePath);
+// const enCodedImg = newImg.toString('base64');
+
+// const image ={
+//     contentType: req.files.file.mimetype,
+//     size: req.files.file.size,
+//     img:Buffer(enCodedImg, 'base64')
+// };
+
+doctorCollection.insertOne({name, email,phoneNumber, image:files.name})
+    .then(result => {
+        res.send(result.insertedCount > 0)
+    }) 
     })
-    return res.send({name: files.name, path:`/${files.name}`})
+    
+    // return res.send({name: files.name, path:`/${files.name}`})
+
+
+   
 });
+
+
+
+app.get('/doctors', (req, res) => {
+    doctorCollection.find({})
+        .toArray((err, documents) => {
+            res.send(documents);
+        })
 });
+
+
+});
+
+
+
+
 
 app.listen(process.env.PORT || port)
