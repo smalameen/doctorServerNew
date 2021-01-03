@@ -29,10 +29,17 @@ app.get('/', (req, res) =>{
 const client = new MongoClient(uri, { useNewUrlParser: true,useUnifiedTopology: true });
 client.connect(err => {
   const dataCollection = client.db("doctorAppointment").collection("receiveAppo");
-
   const doctorCollection = client.db("doctorAppointment").collection("doctors");
+  const reviewCollection = client.db("doctorAppointment").collection("review");
 
-  
+  app.post ('/userReview' ,  (req, res) => {
+    const reviewUser = req.body;
+    console.log(reviewUser);
+    reviewCollection.insertOne(reviewUser)
+    .then(resultUser => {
+        res.send(resultUser.insertedCount > 0)
+    }) 
+});
  
 
   app.post ('/userAppointment' ,  (req, res) => {
@@ -93,6 +100,13 @@ doctorCollection.insertOne({name, email,phoneNumber, image})
 
 app.get('/doctors', (req, res) => {
     doctorCollection.find({})
+        .toArray((err, documents) => {
+            res.send(documents);
+        })
+});
+
+app.get('/reviews', (req, res) => {
+    reviewCollection.find({})
         .toArray((err, documents) => {
             res.send(documents);
         })
