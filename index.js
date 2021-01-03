@@ -68,18 +68,18 @@ app.post ('/addDoctor' ,  (req, res) => {
     console.log(error);
     return res.status(5001).send({meg:"Failed to load image"})
 }
-// const newImg = fs.readFileSync(filePath);
-// const enCodedImg = newImg.toString('base64');
+const newImg = fs.readFileSync(filePath);
+const enCodedImg = newImg.toString('base64');
 
-// const image ={
-//     contentType: req.files.file.mimetype,
-//     size: req.files.file.size,
-//     img:Buffer(enCodedImg, 'base64')
-// };
+const image ={
+    contentType: req.files.file.mimetype,
+    size: req.files.file.size,
+    img:Buffer(enCodedImg, 'base64')
+};
 
-doctorCollection.insertOne({name, email,phoneNumber, image:files.name})
-    .then(result => {
-        res.send(result.insertedCount > 0)
+doctorCollection.insertOne({name, email,phoneNumber, image})
+    .then(results => {
+        res.send(results.insertedCount > 0)
     }) 
     })
     
