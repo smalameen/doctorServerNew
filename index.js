@@ -68,35 +68,33 @@ app.post ('/addDoctor' ,  (req, res) => {
     const phoneNumber = req.body.phoneNumber;
     console.log(files, name, email, phoneNumber);
 
-    const filePath = `${__dirname}/doctors/${files.name}`
+    // const filePath = `${__dirname}/doctors/${files.name}`
 
-    files.mv(filePath, error => {
-    if(error){
-    console.log(error);
-    return res.status(5001).send({meg:"Failed to load image"})
-}
-const newImg = fs.readFileSync(filePath);
+//     files.mv(filePath, error => {
+//     if(error){
+//     console.log(error);
+//     return res.status(5001).send({meg:"Failed to load image"})
+// }
+const newImg = files.data;
 const enCodedImg = newImg.toString('base64');
 
 const image ={
-    contentType: req.files.file.mimetype,
-    size: req.files.file.size,
-    img:Buffer(enCodedImg, 'base64')
+    contentType: files.mimetype,
+    size: files.size,
+    img: Buffer.from(enCodedImg, 'base64')
 };
 
 doctorCollection.insertOne({name, email,phoneNumber, image})
     .then(results => {
         res.send(results.insertedCount > 0)
     }) 
-    })
+    // })
     
     // return res.send({name: files.name, path:`/${files.name}`})
 
 
    
 });
-
-
 
 app.get('/doctors', (req, res) => {
     doctorCollection.find({})
@@ -114,9 +112,5 @@ app.get('/reviews', (req, res) => {
 
 
 });
-
-
-
-
 
 app.listen(process.env.PORT || port)
